@@ -26,7 +26,7 @@ pip install requests
 ```
 3. Clone the Project: Clone the GitHub repository to your local machine:
 ```
-git clone https://github.com/archescyber/Api-Tester/
+git clone https://github.com/cyze-afresh/Api-Tester/
 ```
 ```
 cd Api-Tester
