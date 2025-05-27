@@ -35,6 +35,7 @@
 ```
 git clone https://github.com/root-cyze/Api-Tester
 ```
+
 ```
 cd Api-Tester
 ```
@@ -52,9 +53,9 @@ pip install requests colorama
 # Usage
 
 Start the application by running:
-`
+```
 python main.py
-`
+```
 Then:
 
 Enter the API URL you want to test
