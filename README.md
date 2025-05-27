@@ -35,25 +35,26 @@
 ```
 git clone https://github.com/root-cyze/Api-Tester
 ```
+```
 cd Api-Tester
+```
 
 2. Install Dependencies
-
+```
 pip install -r requirements.txt
-
+```
 If you don’t have a requirements.txt yet, you can install manually:
-
+```
 pip install requests colorama
-
-
+```
 ---
 
 # Usage
 
 Start the application by running:
-
+`
 python main.py
-
+`
 Then:
 
 Enter the API URL you want to test
@@ -69,7 +70,7 @@ Optionally save the result to a local .txt file
 ---
 
 # Example
-
+`
 [INPUT 2025-05-27 21:58:05] Enter the API URL: https://xxxx
 [SUCCESS 2025-05-27 21:58:07] API responded successfully.
 [INFO 2025-05-27 21:58:07] Response:
@@ -79,7 +80,7 @@ Optionally save the result to a local .txt file
         "advice": "Never write in an email to someone, something which you wouldn't say to that person's face."
     }
 }
-
+`
 
 ---
 
