@@ -1,5 +1,8 @@
 # API Tester
 
+![IMG_20250527_220332](https://github.com/user-attachments/assets/69c46243-e36b-4d4f-8c51-d2e9e9729d15)
+
+
 API Tester is a simple Python application that allows users to retrieve responses from a specified API URL. This project simplifies making basic API requests and displaying responses.
 
 ## Features
