@@ -1,58 +1,110 @@
 import os
 import requests
-import platform
+import platform                                                import json
+from datetime import datetime
+from colorama import Fore, Style, init                         
+init(autoreset=True)
+                                                               # -------- LOG SİSTEMİ -------- #
+def timestamp():                                                   return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-def temizle():
+def log_info(message):                                             print(Fore.CYAN + f"[INFO {timestamp()}] " + Style.RESET_ALL + message)
+
+def log_success(message):
+    print(Fore.GREEN + f"[SUCCESS {timestamp()}] " + Style.RESET_ALL + message)
+
+def log_error(message):
+    print(Fore.RED + f"[ERROR {timestamp()}] " + Style.RESET_ALL + message)
+
+def log_warn(message):
+    print(Fore.YELLOW + f"[WARN {timestamp()}] " + Style.RESET_ALL + message)
+
+def log_input(message):                                            return input(Fore.BLUE + f"[INPUT {timestamp()}] " + Style.RESET_ALL + message)
+                                                               def log_exit(message):
+    print(Fore.MAGENTA + f"[EXIT {timestamp()}] " + Style.RESET_ALL + message)
+
+# -------- GÖRSEL -------- #
+def temizle_ekran():
     os_turu = platform.system()
-    if os_turu == "Windows":
-        os.system("cls")
-    elif os_turu in ["Linux", "Darwin"]:  # Linux ve macOS
-        os.system("clear")
-    else:
-        print("[<>] The purge command is not supported for this operating system.")
+    os.system("cls" if os_turu == "Windows" else "clear")
 
-# Clear the screen
-temizle()
-
-# Display title after clearing the screen
-print("""
-             d8888          d8b                    
-            d88888          Y8P                    
-           d88P888                                 
-          d88P 888 88888b.  888                    
-         d88P  888 888 "88b 888                    
-        d88P   888 888  888 888                    
-       d8888888888 888 d88P 888                    
-      d88P     888 88888P"  888                    
-                   888                             
-                   888                             
-                   888                             
-88888888888                888                     
-    888                    888                     
-    888                    888                     
-    888   .d88b.  .d8888b  888888  .d88b.  888d888 
-    888  d8P  Y8b 88K      888    d8P  Y8b 888P"   
-    888  88888888 "Y8888b. 888    88888888 888     
-    888  Y8b.          X88 Y88b.  Y8b.     888     
-    888   "Y8888   88888P'  "Y888  "Y8888  888     
-""")
-
-def fetch_api_response(url):
+def baslik_goster():
+    print(
+        Fore.BLUE + "    ___    ____  ____                      \n" +
+        Fore.LIGHTBLUE_EX + "   /   |  / __ \\/  _/                      \n" +
+        Fore.CYAN + "  / /| | / /_/ // /                        \n" +
+        Fore.LIGHTCYAN_EX + " / ___ |/ ____// /                         \n" +
+        Fore.WHITE + "/_/  |_/_/___/___/________________________ \n" +
+        Fore.BLUE + "        /_  __/ ____/ ___/_  __/ ____/ ___/\n" +
+        Fore.LIGHTBLUE_EX + "         / / / __/  \\__ \\ / / / __/ / /_/ / \n" +
+        Fore.CYAN + "        / / / /___ ___/ // / / /___/ _, _/  \n" +
+        Fore.LIGHTCYAN_EX + "       /_/ /_____//____//_/ /_____/_/ |_|   \n" +
+        Style.RESET_ALL
+    )
+print("")
+print("")
+# -------- API İSTEĞİ -------- #
+def fetch_api_response(url, headers=None):
     try:
-        response = requests.get(url)
-        response.raise_for_status()  # Raise an exception for HTTP errors
-        return response.json()  # Return the JSON response
+        log_info("Sending request to API...")
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        log_success("API responded successfully.")
+        content_type = response.headers.get("Content-Type", "")
+
+        if "application/json" in content_type:
+            return response.json()
+        else:
+            log_warn("Response is not JSON. Displaying raw text.")
+            return response.text
     except requests.exceptions.RequestException as e:
-        print(f"An error occurred: {e}")
+        log_error(f"Request failed: {e}")
         return None
 
-if __name__ == "__main__":
+# -------- ANA FONKSİYON -------- #
+def main():
+    temizle_ekran()
+    baslik_goster()
+
     try:
-        api_url = input("Please enter the API URL: ")
-        result = fetch_api_response(api_url)
+        api_url = log_input("Enter the API URL: ").strip()
+        if not api_url:
+            log_error("URL cannot be empty.")
+            return
+
+        add_headers = log_input("Would you like to add headers? (y/n): ").lower().strip()
+        headers = {}
+
+        if add_headers == "y":
+            while True:
+                key = log_input("Header key (leave blank to finish): ").strip()
+                if not key:
+                    break
+                value = log_input(f"Value for '{key}': ").strip()
+                headers[key] = value
+
+        result = fetch_api_response(api_url, headers)
 
         if result is not None:
-            print("API Response:")
-            print(result)
+            log_info("Response:")
+            if isinstance(result, dict):
+                print(Fore.LIGHTWHITE_EX + json.dumps(result, indent=4, ensure_ascii=False) + Style.RESET_ALL)
+            else:
+                print(Fore.LIGHTWHITE_EX + str(result) + Style.RESET_ALL)
+
+            save = log_input("Do you want to save the response to a file? (y/n): ").lower().strip()
+            if save == "y":
+                filename = f"api_response_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+                with open(filename, "w", encoding="utf-8") as f:
+                    if isinstance(result, dict):
+                        json.dump(result, f, indent=4, ensure_ascii=False)
+                    else:
+                        f.write(result)
+                log_success(f"Response saved to '{filename}'")
+        else:
+            log_warn("No data was returned from the API.")
+
     except KeyboardInterrupt:
-        print("\n[<>] Program terminated by user.")
+        log_exit("Program terminated by user.")
+
+if __name__ == "__main__":
+    main()
